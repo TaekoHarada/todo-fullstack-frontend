@@ -15,6 +15,8 @@ jest.mock("../app/utils/axiosInstance");
 
 describe("Login Page", () => {
   let mockPush;
+  let consoleErrorSpy;
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockPush = jest.fn();
@@ -22,6 +24,12 @@ describe("Login Page", () => {
     useRouter.mockReturnValue({
       push: mockPush, // Mock the push method
     });
+
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore(); // Restore console.error after each test
   });
 
   test("LOGIN-000: renders the login form", () => {

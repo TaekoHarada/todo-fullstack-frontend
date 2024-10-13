@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import axiosInstance from "./utils/axiosInstance";
 import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const API_URL = "http://localhost:5001/api/todos";
 
@@ -12,10 +15,26 @@ type Todo = {
   completed: boolean;
 };
 
+// Define Zod schema for form validation
+const todoSchema = z.object({
+  title: z.string().min(1, "Error: Input todo."), // Validation for non-empty title
+});
+
+type FormData = z.infer<typeof todoSchema>; // Infer form data type from Zod schema
+
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState("");
   const router = useRouter();
+
+  // Use useForm hook from React Hook Form, pass Zod schema to resolver
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(todoSchema),
+  });
 
   // Fetch Todos with JWT
   useEffect(() => {
@@ -36,11 +55,11 @@ export default function Home() {
     }
   };
 
-  const addTodo = async () => {
+  const onSubmit = async (data: FormData) => {
     try {
-      const res = await axiosInstance.post(API_URL, { title: newTodo });
+      const res = await axiosInstance.post(API_URL, { title: data.title });
       setTodos([...todos, res.data]);
-      setNewTodo("");
+      reset();
     } catch (error) {
       console.error("Error adding todo:", error);
     }
@@ -55,9 +74,14 @@ export default function Home() {
     }
   };
 
-  const toggleTodo = async (id: string, completed: boolean) => {
+  const toggleTodo = async (id: string, title: string, completed: boolean) => {
     try {
-      const res = await axiosInstance.put(`${API_URL}/${id}`, { completed });
+      const res = await axiosInstance.put(`${API_URL}/${id}`, {
+        title,
+        completed,
+      });
+
+      console.log("toggleTodo res.data", res.data);
       setTodos(todos.map((todo) => (todo.id === id ? res.data : todo)));
     } catch (error) {
       console.error("Error toggling todo:", error);
@@ -69,21 +93,24 @@ export default function Home() {
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <h1 className="text-2xl font-bold">Todo App</h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex gap-4 items-center flex-col sm:flex-row"
+        >
           <input
             type="text"
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
+            {...register("title")} // Register input with validation
             className="border p-2"
             placeholder="Add a new todo"
           />
           <button
-            onClick={addTodo}
+            type="submit"
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-blue-500 text-white h-10 px-4"
           >
             Add Todo
           </button>
-        </div>
+        </form>
+        {errors.title && <p className="text-red-500">{errors.title.message}</p>}
 
         <ul className="list-none" data-testid="todo-list">
           {todos.map((todo) => (
@@ -92,7 +119,7 @@ export default function Home() {
                 className={`cursor-pointer ${
                   todo.completed ? "line-through" : ""
                 }`}
-                onClick={() => toggleTodo(todo.id, !todo.completed)}
+                onClick={() => toggleTodo(todo.id, todo.title, !todo.completed)}
               >
                 {todo.title}
               </span>

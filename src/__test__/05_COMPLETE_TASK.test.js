@@ -13,7 +13,7 @@ jest.mock("next/navigation", () => ({
 // Mock axiosInstance
 jest.mock("../app/utils/axiosInstance");
 
-describe("Home Page", () => {
+describe("Marking Tasks as Complete", () => {
   let mockPush;
   beforeEach(() => {
     jest.clearAllMocks();
@@ -22,13 +22,20 @@ describe("Home Page", () => {
     useRouter.mockReturnValue({
       push: mockPush, // Mock the push method
     });
+
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
-  test("HOME-005: toggles todo completion", async () => {
-    // Mock the GET and PUT API calls
+  afterEach(() => {
+    consoleErrorSpy.mockRestore(); // Restore console.error after each test
+  });
+
+  test("COMPLETE_TASK-000: Mark a not-completed task", async () => {
+    // GET todo
     await axiosInstance.get.mockResolvedValueOnce({
       data: [{ id: "1", title: "Test Todo 1", completed: false }],
     });
+    // PUT as completed
     await axiosInstance.put.mockResolvedValueOnce({
       data: { id: "1", title: "Test Todo 1", completed: true },
     });
@@ -46,10 +53,40 @@ describe("Home Page", () => {
     // Ensure axios put is called with correct data
     expect(axiosInstance.put).toHaveBeenCalledWith(
       "http://localhost:5001/api/todos/1",
-      { completed: true }
+      { title: "Test Todo 1", completed: true }
     );
 
     // Check if the todo is marked as completed (line-through)
     expect(screen.getByText("Test Todo 1")).toHaveClass("line-through");
+  });
+
+  test("COMPLETE_TASK-001: Mark a completed task", async () => {
+    // GET a completed todo
+    await axiosInstance.get.mockResolvedValueOnce({
+      data: [{ id: "1", title: "Test Todo 1", completed: true }],
+    });
+    // PUT as not completed
+    await axiosInstance.put.mockResolvedValueOnce({
+      data: { id: "1", title: "Test Todo 1", completed: false },
+    });
+
+    // Render the Home component
+    await act(async () => {
+      render(<Home />);
+    });
+
+    // Simulate clicking on the todo to toggle completion
+    await act(async () => {
+      fireEvent.click(screen.getByText("Test Todo 1"));
+    });
+
+    // Ensure axios put is called with correct data
+    expect(axiosInstance.put).toHaveBeenCalledWith(
+      "http://localhost:5001/api/todos/1",
+      { title: "Test Todo 1", completed: false }
+    );
+
+    // Check if the todo is marked as completed (line-through)
+    expect(screen.getByText("Test Todo 1")).not.toHaveClass("line-through");
   });
 });

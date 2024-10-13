@@ -13,8 +13,10 @@ jest.mock("next/navigation", () => ({
 // Mock axiosInstance
 jest.mock("../app/utils/axiosInstance");
 
-describe("Home Page", () => {
+describe("Viewing a List of Tasks", () => {
   let mockPush;
+  let consoleErrorSpy;
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockPush = jest.fn();
@@ -22,6 +24,12 @@ describe("Home Page", () => {
     useRouter.mockReturnValue({
       push: mockPush, // Mock the push method
     });
+
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore(); // Restore console.error after each test
   });
 
   test("VIEW_TASK-001: ToDo page has been rendered and user views the list of all tasks", async () => {

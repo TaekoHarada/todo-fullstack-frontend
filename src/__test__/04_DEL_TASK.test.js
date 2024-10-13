@@ -13,8 +13,10 @@ jest.mock("next/navigation", () => ({
 // Mock axiosInstance
 jest.mock("../app/utils/axiosInstance");
 
-describe("Home Page", () => {
+describe("Delete Todo", () => {
   let mockPush;
+  let consoleErrorSpy;
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockPush = jest.fn();
@@ -22,9 +24,15 @@ describe("Home Page", () => {
     useRouter.mockReturnValue({
       push: mockPush, // Mock the push method
     });
+
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
-  test("HOME-004: deletes a todo", async () => {
+  afterEach(() => {
+    consoleErrorSpy.mockRestore(); // Restore console.error after each test
+  });
+
+  test("DEL_TASK-000: Delete an existing task", async () => {
     // Mock the GET and DELETE API calls
     await axiosInstance.get.mockResolvedValueOnce({
       data: [{ id: "1", title: "Test Todo 1", completed: false }],
@@ -48,5 +56,40 @@ describe("Home Page", () => {
 
     // Check if the todo is removed from the list
     expect(screen.queryByText("Test Todo 1")).not.toBeInTheDocument();
+  });
+
+  test("DEL_TASK-001: Delete a non-existing task (error case)", async () => {
+    // Mock the GET API call to load the todo list
+    await axiosInstance.get.mockResolvedValueOnce({
+      data: [{ id: "1", title: "Test Todo 1", completed: false }],
+    });
+
+    // Mock the DELETE API call to simulate a failed deletion (404 Not Found)
+    await axiosInstance.delete.mockRejectedValueOnce({
+      response: {
+        status: 404,
+        data: { message: "Todo not found" },
+      },
+    });
+
+    // Render the Home component
+    await act(async () => {
+      render(<Home />);
+    });
+
+    // Simulate button click to delete the non-existing todo
+    await act(async () => {
+      fireEvent.click(screen.getByText("Delete"));
+    });
+
+    // Ensure axios delete is called with the correct ID
+    expect(axiosInstance.delete).toHaveBeenCalledWith(
+      "http://localhost:5001/api/todos/1"
+    );
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Error deleting todo:",
+      expect.anything()
+    );
   });
 });
