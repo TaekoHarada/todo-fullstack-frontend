@@ -25,10 +25,14 @@ export default function Home() {
   const fetchTodos = async () => {
     try {
       const res = await axiosInstance.get(API_URL); // Cookies sent automatically
-      setTodos(res.data);
+      res ? setTodos(res.data) : console.log("No todo data found");
     } catch (error: any) {
-      console.error("Error fetching todos:", error);
-      router.push("/login"); // Redirect to login if not authenticated
+      if (error.response?.status === 401) {
+        console.error("You are not authorized. Please log in again.", error);
+        router.push("/login");
+      } else {
+        console.error("Error fetching todos:", error);
+      }
     }
   };
 
@@ -81,7 +85,7 @@ export default function Home() {
           </button>
         </div>
 
-        <ul className="list-none">
+        <ul className="list-none" data-testid="todo-list">
           {todos.map((todo) => (
             <li key={todo.id} className="flex items-center justify-between">
               <span

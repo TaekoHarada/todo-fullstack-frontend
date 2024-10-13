@@ -24,7 +24,7 @@ describe("Home Page", () => {
     });
   });
 
-  test("HOME-001: renders the home page and fetches todos", async () => {
+  test("VIEW_TASK-001: ToDo page has been rendered and user views the list of all tasks", async () => {
     // Mock the GET API call to return a list of todos
     await axiosInstance.get.mockResolvedValueOnce({
       data: [
@@ -38,6 +38,9 @@ describe("Home Page", () => {
       render(<Home />);
     });
 
+    const todoList = screen.queryByTestId("todo-list");
+    expect(todoList.children.length).not.toBe(0); // Asserts that there are no task items inside
+
     // Check if todos are rendered on the page
     expect(screen.getByText("Test Todo 1")).toBeInTheDocument();
     expect(screen.getByText("Test Todo 2")).toBeInTheDocument();
@@ -45,14 +48,46 @@ describe("Home Page", () => {
     expect(screen.getByText("Test Todo 2")).toHaveClass("line-through");
   });
 
-  test("HOME-002: redirects to login if fetching todos fails", async () => {
-    // Mock the GET API call to throw an error
-    await axiosInstance.get.mockRejectedValueOnce(new Error("Unauthorized"));
+  test("VIEW_TASK-002: View tasks when any tasks have not been added", async () => {
+    // Mock the GET API call to return an empty list
+    await axiosInstance.get.mockResolvedValueOnce({
+      data: [], // API returns empty array when there's no data
+    });
 
     // Render the Home component
     await act(async () => {
       render(<Home />);
     });
+
+    // Check if todos are not rendered on the page
+    // Check for presence of the list element (optional with data-testid)
+    const todoList = screen.queryByTestId("todo-list");
+    expect(todoList.children.length).toBe(0); // Asserts that there are no task items inside
+  });
+
+  test("VIEW_TASK-003: Redirect to login page when the user is not authorized", async () => {
+    // Mock the GET API call to throw an error
+    await axiosInstance.get.mockRejectedValueOnce({
+      response: {
+        status: 401,
+      },
+    });
+
+    // Spy on console.error to verify log output
+    const consoleErrorSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    // Render the Home component
+    await act(async () => {
+      render(<Home />);
+    });
+
+    // Assert that the correct error message is logged with console.error
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "You are not authorized. Please log in again.",
+      expect.anything()
+    );
 
     // Ensure the user is redirected to the login page
     expect(mockPush).toHaveBeenCalledWith("/login");
