@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -13,6 +13,9 @@ export default function Login() {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  // Initial logout
+  useEffect(() => {}, []);
+
   const handleLogin = async () => {
     try {
       const res = await axiosInstance.post(API_URL, { username, password });
@@ -21,6 +24,7 @@ export default function Login() {
       router.push("/");
     } catch (error) {
       setError("Login failed. Please check your credentials.");
+      console.log("setError");
     }
   };
 

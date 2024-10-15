@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const API_URL = "http://localhost:5001/api/todos";
+const LOGOUT_API_URL = "http://localhost:5001/api/users/logout";
 
 type Todo = {
   id: string;
@@ -88,10 +89,24 @@ export default function Home() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post(LOGOUT_API_URL); // Call the logout endpoint
+      router.push("/login"); // Redirect to the login page after logout
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <h1 className="text-2xl font-bold">Todo App</h1>
+        <button
+          onClick={handleLogout}
+          className="bg-gray-500 text-white p-2 rounded mb-4 text-sm"
+        >
+          Logout
+        </button>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -114,7 +129,7 @@ export default function Home() {
 
         <ul className="list-none" data-testid="todo-list">
           {todos.map((todo) => (
-            <li key={todo.id} className="flex items-center justify-between">
+            <li key={todo.id} className="flex items-center justify-between m-1">
               <span
                 className={`cursor-pointer ${
                   todo.completed ? "line-through" : ""
@@ -125,7 +140,7 @@ export default function Home() {
               </span>
               <button
                 onClick={() => deleteTodo(todo.id)}
-                className="bg-red-500 text-white rounded p-2 ml-4"
+                className="bg-red-500 text-white rounded p-2 ml-4 text-sm"
               >
                 Delete
               </button>
@@ -134,7 +149,7 @@ export default function Home() {
         </ul>
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <p>Todo App using Next.js</p>
+        <p>Todo App for Testing</p>
       </footer>
     </div>
   );
