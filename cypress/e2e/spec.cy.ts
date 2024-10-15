@@ -1,68 +1,18 @@
 describe("Case1: E2E Test", () => {
   it("Case 1: ", () => {
     //// LOGIN-001:	Login (Success)
-    cy.visit("/login");
-    // Type in the username and password
-    cy.get('input[placeholder="Username"]').type("taekoharada");
-    cy.get('input[placeholder="Password"]').type("taekoharada");
-
-    // Click the login button
-    cy.get("button").contains("Login").click();
-
-    // Verify that the URL includes the home page after successful login
-    cy.url().should("eq", Cypress.config().baseUrl + "/");
+    cy.login("taekoharada", "taekoharada");
+    cy.url().should("eq", Cypress.config().baseUrl + "/"); // Verify the URL
+    cy.getCookie("token").should("exist"); // token is existing
 
     //// TODO-001:	Display the existing todos
     cy.get('[data-testid="todo-list"] li').should("have.length.greaterThan", 1);
 
     //// TODO-002:	Add a new todo
-    cy.get('input[placeholder="Add a new todo"]').type(
-      "1: New task added by Cypress testing."
-    );
-    // Get the number of todo items
-    let todoLength1;
+    cy.addNew("Case 1: New task 1 added by Cypress testing.");
 
-    cy.get('[data-testid="todo-list"] li').then((listItems) => {
-      // Store the length in the variable
-      todoLength1 = listItems.length;
-      // Log the length
-      cy.log("Number of todos:", todoLength1);
-
-      // Click the "Add Todo" button
-      cy.get("button").contains("Add Todo").click();
-      // Log the length
-      cy.log("Number of todos after cliking Add Todo:", todoLength1);
-
-      // The number of todo items is incremented by 1
-      cy.get('[data-testid="todo-list"] li').should(
-        "have.length",
-        todoLength1 + 1
-      );
-    });
-
-    cy.get('input[placeholder="Add a new todo"]').type(
-      "2: New task added by Cypress testing."
-    );
-    // Get the number of todo items
-    let todoLength2;
-
-    cy.get('[data-testid="todo-list"] li').then((listItems) => {
-      // Store the length in the variable
-      todoLength2 = listItems.length;
-      // Log the length
-      cy.log("Number of todos:", todoLength2);
-
-      // Click the "Add Todo" button
-      cy.get("button").contains("Add Todo").click();
-      // Log the length
-      cy.log("Number of todos after cliking Add Todo:", todoLength2);
-
-      // The number of todo items is incremented by 1
-      cy.get('[data-testid="todo-list"] li').should(
-        "have.length",
-        todoLength2 + 1
-      );
-    });
+    //// TODO-002:	Add a new todo
+    cy.addNew("Case 1: New task 2 added by Cypress testing.");
 
     //// TODO-005:	Edit todo as completed
     // Get the last added item
@@ -94,39 +44,57 @@ describe("Case1: E2E Test", () => {
       "2: New task added by Cypress testing."
     );
     //// LOGOUT-001:	Logout
+    cy.logout();
   });
 
-  // Test for adding a to-do
-  // it("allows a user to add a new to-do", () => {
-  //   cy.visit("/");
-  //   cy.get('input[name="new-todo"]').type("Write E2E test case{enter}");
-  //   cy.contains("Write E2E test case").should("exist");
-  // });
+  it("Case 2: ", () => {
+    //// LOGIN-001:	Login (Success)
+    cy.login("taekoharada", "taekoharada");
+    cy.url().should("eq", Cypress.config().baseUrl + "/"); // Verify the URL
+    cy.getCookie("token").should("exist"); // token is existing
 
-  // // Test for editing a to-do
-  // it("allows a user to edit a to-do item", () => {
-  //   cy.visit("/home");
-  //   cy.contains("Write E2E test case").parent().find(".edit-button").click();
-  //   cy.get('input[name="edit-todo"]')
-  //     .clear()
-  //     .type("Write E2E test case with Cypress{enter}");
-  //   cy.contains("Write E2E test case with Cypress").should("exist");
-  // });
+    //// TODO-001:	Display the existing todos
+    cy.get('[data-testid="todo-list"] li').should("have.length.greaterThan", 1);
 
-  // // Test for deleting a to-do
-  // it("allows a user to delete a to-do", () => {
-  //   cy.visit("/home");
-  //   cy.contains("Write E2E test case with Cypress")
-  //     .parent()
-  //     .find(".delete-button")
-  //     .click();
-  //   cy.contains("Write E2E test case with Cypress").should("not.exist");
-  // });
+    //// TODO-003:	Add with empty fields (Cypress not allowing .type() with "")
+    cy.get('input[placeholder="Add a new todo"]').should("be.empty");
+    // Click the "Add Todo" button
+    cy.get("button").contains("Add Todo").click();
+    // Ensure error message is displayed
+    cy.get("p").contains("Error: Input todo.").should("be.visible");
+  });
 
-  // // Test for logout
-  // it("allows a user to log out", () => {
-  //   cy.visit("/home");
-  //   cy.get(".logout-button").click();
-  //   cy.url().should("include", "/login");
-  // });
+  it("Case 3: ", () => {
+    //// LOGIN-001:	Login (Success)
+    cy.login("taekoharada", "taekoharada");
+    cy.url().should("eq", Cypress.config().baseUrl + "/"); // Verify the URL
+    cy.getCookie("token").should("exist"); // token is existing
+
+    //// TODO-001:	Display the existing todos
+    cy.get('[data-testid="todo-list"] li').should("have.length.greaterThan", 1);
+
+    //// TODO-002:	Add a new todo
+    cy.addNew("Case 3: New task added by Cypress testing.");
+
+    //// TODO-005:	Edit todo as completed
+
+    //// TODO-006:	Edit todo as not-completed
+  });
+
+  it("Case 4: ", () => {
+    //// LOGIN-002:	Login with invalid password (Fail)
+    cy.login("taekoharada", "invalidpassword");
+    cy.getCookie("token").should("not.exist"); // token i NOT existing
+  });
+
+  it("Case 5: ", () => {
+    //// LOGIN-003:	Login with empty Id and Password (Fail)
+    cy.visit("/login"); // Visit the login page
+    cy.get('input[placeholder="Username"]').should("be.empty");
+    cy.get('input[placeholder="Password"]').should("be.empty");
+    cy.get("button").contains("Login").click(); // Click the login button
+
+    cy.getCookie("token").should("not.exist"); // token is NOT existing
+    // Show error message
+  });
 });

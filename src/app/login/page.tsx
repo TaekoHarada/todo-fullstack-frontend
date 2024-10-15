@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const API_URL = "http://localhost:5001/api/users/login";
+const LOGOUT_API_URL = "http://localhost:5001/api/users/logout";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -24,7 +25,16 @@ export default function Login() {
       router.push("/");
     } catch (error) {
       setError("Login failed. Please check your credentials.");
-      console.log("setError");
+      handleLogout();
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post(LOGOUT_API_URL); // Call the logout endpoint
+      router.push("/login"); // Redirect to the login page after logout
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 
