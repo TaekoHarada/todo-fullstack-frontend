@@ -45,14 +45,14 @@ export default function Home() {
   const fetchTodos = async () => {
     try {
       const res = await axiosInstance.get(API_URL); // Cookies sent automatically
-      res ? setTodos(res.data) : console.log("No todo data found");
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        console.error("You are not authorized. Please log in again.", error);
-        router.push("/login");
+      if (res) {
+        setTodos(res.data);
       } else {
-        console.error("Error fetching todos:", error);
+        console.log("No todo data found");
       }
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+      router.push("/login");
     }
   };
 

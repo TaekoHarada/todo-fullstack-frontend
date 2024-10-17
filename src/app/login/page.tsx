@@ -24,6 +24,7 @@ export default function Login() {
 
       router.push("/");
     } catch (error) {
+      console.error("Login failed:", error);
       setError("Login failed. Please check your credentials.");
       handleLogout();
     }
@@ -65,7 +66,7 @@ export default function Login() {
 
       {/* Add a link to the signup page */}
       <p className="text-sm">
-        Don't have an account?{" "}
+        Don&apos;t have an account?
         <Link href="/signup" className="text-blue-500 underline">
           Sign up here
         </Link>

@@ -18,6 +18,7 @@ export default function Signup() {
       await axiosInstance.post(API_URL, { username, password });
       router.push("/login");
     } catch (error) {
+      console.error("Signup failed:", error);
       setError("Signup failed. Please try again.");
     }
   };

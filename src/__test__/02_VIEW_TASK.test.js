@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import Home from "../app/page";
 import axiosInstance from "../app/utils/axiosInstance";
 import { useRouter } from "next/navigation";
