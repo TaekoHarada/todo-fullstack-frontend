@@ -7,8 +7,11 @@ import axiosInstance from "./utils/axiosInstance";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const API_URL = "http://localhost:5001/api/todos";
-const LOGOUT_API_URL = "http://localhost:5001/api/users/logout";
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+console.log("BASE_URL", BASE_URL);
+
+const API_URL = `${BASE_URL}/api/todos`;
+const LOGOUT_API_URL = `${BASE_URL}/api/users/logout`;
 
 type Todo = {
   id: string;

@@ -5,7 +5,9 @@ import { useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { useRouter } from "next/navigation";
 
-const API_URL = "http://localhost:5001/api/users/signup";
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+const SIGNUP_API_URL = `${BASE_URL}/api/users/signup`;
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -15,7 +17,7 @@ export default function Signup() {
 
   const handleSignup = async () => {
     try {
-      await axiosInstance.post(API_URL, { username, password });
+      await axiosInstance.post(SIGNUP_API_URL, { username, password });
       router.push("/login");
     } catch (error) {
       console.error("Signup failed:", error);

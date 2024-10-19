@@ -5,8 +5,10 @@ import axiosInstance from "../utils/axiosInstance";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const API_URL = "http://localhost:5001/api/users/login";
-const LOGOUT_API_URL = "http://localhost:5001/api/users/logout";
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+const LOGIN_API_URL = `${BASE_URL}/api/users/login`;
+const LOGOUT_API_URL = `${BASE_URL}/api/users/logout`;
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -19,7 +21,10 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const res = await axiosInstance.post(API_URL, { username, password });
+      const res = await axiosInstance.post(LOGIN_API_URL, {
+        username,
+        password,
+      });
       console.log("Login response:", res.data);
 
       router.push("/");
