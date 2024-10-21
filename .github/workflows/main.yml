@@ -32,9 +32,9 @@ jobs:
         run: npm start & # or npm run dev, depending on your setup
 
       # Wait for the server to be up
-      - name: Wait for Server
+      - name: Wait for 5 seconds
         run: |
-          npx wait-on http://localhost:3000
+          sleep 5
 
       - name: Run Cypress E2E Tests
         run: npx cypress run
