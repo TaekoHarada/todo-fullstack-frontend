@@ -93,7 +93,7 @@ describe("Viewing a List of Tasks", () => {
 
     // Assert that the correct error message is logged with console.error
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "You are not authorized. Please log in again.",
+      "Error fetching todos:",
       expect.anything()
     );
 

@@ -4,6 +4,8 @@ import axiosInstance from "../app/utils/axiosInstance";
 import { useRouter } from "next/navigation";
 import "@testing-library/jest-dom"; // Import jest-dom matchers
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 // Mock the next/navigation module
 jest.mock("next/navigation", () => ({
   __esModule: true,
@@ -54,10 +56,9 @@ describe("Add Todo", () => {
     });
 
     // Ensure axios post is called with correct data
-    expect(axiosInstance.post).toHaveBeenCalledWith(
-      "http://localhost:5001/api/todos",
-      { title: "New Todo" }
-    );
+    expect(axiosInstance.post).toHaveBeenCalledWith(`${BASE_URL}/api/todos`, {
+      title: "New Todo",
+    });
 
     // Check if the new todo is added to the list
     expect(screen.getByText("New Todo")).toBeInTheDocument();

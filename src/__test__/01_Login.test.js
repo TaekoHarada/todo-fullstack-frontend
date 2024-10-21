@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation"; // Using the correct hook from next
 import axiosInstance from "../app/utils/axiosInstance";
 import "@testing-library/jest-dom"; // Import jest-dom matchers
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 // Mock the next/navigation module
 jest.mock("next/navigation", () => ({
   __esModule: true,
@@ -64,7 +66,7 @@ describe("Login Page", () => {
 
     // Ensure axios post is called with correct data
     expect(axiosInstance.post).toHaveBeenCalledWith(
-      "http://localhost:5001/api/users/login",
+      `${BASE_URL}/api/users/login`,
       {
         username: "testuser",
         password: "password123",
@@ -96,7 +98,7 @@ describe("Login Page", () => {
 
     // Ensure axios post was called
     expect(axiosInstance.post).toHaveBeenCalledWith(
-      "http://localhost:5001/api/users/login",
+      `${BASE_URL}/api/users/login`,
       {
         username: "invaliduser",
         password: "wrongpassword",
@@ -128,7 +130,7 @@ describe("Login Page", () => {
 
     // Ensure axios post was called
     expect(axiosInstance.post).toHaveBeenCalledWith(
-      "http://localhost:5001/api/users/login",
+      `${BASE_URL}/api/users/login`,
       {
         username: "",
         password: "",

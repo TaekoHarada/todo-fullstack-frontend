@@ -4,6 +4,8 @@ import axiosInstance from "../app/utils/axiosInstance";
 import { useRouter } from "next/navigation";
 import "@testing-library/jest-dom"; // Import jest-dom matchers
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 // Mock the next/navigation module
 jest.mock("next/navigation", () => ({
   __esModule: true,
@@ -51,7 +53,7 @@ describe("Delete Todo", () => {
 
     // Ensure axios delete is called with correct data
     expect(axiosInstance.delete).toHaveBeenCalledWith(
-      "http://localhost:5001/api/todos/1"
+      `${BASE_URL}/api/todos/1`
     );
 
     // Check if the todo is removed from the list
@@ -84,7 +86,7 @@ describe("Delete Todo", () => {
 
     // Ensure axios delete is called with the correct ID
     expect(axiosInstance.delete).toHaveBeenCalledWith(
-      "http://localhost:5001/api/todos/1"
+      `${BASE_URL}/api/todos/1`
     );
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
