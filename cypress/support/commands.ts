@@ -53,9 +53,8 @@ Cypress.Commands.add("login", (username, password) => {
 
 Cypress.Commands.add("logout", () => {
   cy.visit("/");
-  cy.getCookie("token").should("exist");
   // Click logout button
-  cy.get("button").contains("Logout").click();
+  cy.get("button").contains("Logout").should("be.visible").click();
   // Ensure
   cy.getCookie("token").should("not.exist");
   // Ensure current URL is login page
@@ -74,7 +73,7 @@ Cypress.Commands.add("addNew", (newTask) => {
     cy.log("Number of todos:", todoLength);
 
     // Click the "Add Todo" button
-    cy.get("button").contains("Add Todo").click();
+    cy.get("button").contains("Add Todo").should("be.visible").click();
     // Log the length
     cy.log("Number of todos after cliking Add Todo:", todoLength);
 

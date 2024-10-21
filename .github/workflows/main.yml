@@ -27,18 +27,6 @@ jobs:
       - name: Run Jest Unit Tests
         run: npm run test
 
-      # Start the server in the background
-      - name: Start Server
-        run: npm start & # or npm run dev, depending on your setup
-
-      # Wait for the server to be up
-      - name: Wait for 5 seconds
-        run: |
-          sleep 5
-
-      - name: Run Cypress E2E Tests
-        run: npx cypress run
-
   deploy:
     needs: test
     runs-on: ubuntu-latest

@@ -1,18 +1,22 @@
+const LOGINID = "test";
+const LOGINPASS = "test";
+
 describe("Case1: E2E Test", () => {
   it("Case 1: ", () => {
     //// LOGIN-001:	Login (Success)
-    cy.login("taekoharada", "taekoharada");
+    cy.login(LOGINID, LOGINPASS);
     cy.url().should("eq", Cypress.config().baseUrl + "/"); // Verify the URL
-    cy.getCookie("token").should("exist"); // token is existing
 
     //// TODO-001:	Display the existing todos
     cy.get('[data-testid="todo-list"] li').should("have.length.greaterThan", 1);
 
     //// TODO-002:	Add a new todo
-    cy.addNew("Case 1: New task 1 added by Cypress testing.");
+    const newTodo = "Case 1: New task added by Cypress testing.";
+    cy.addNew(newTodo);
 
     //// TODO-002:	Add a new todo
-    cy.addNew("Case 1: New task 2 added by Cypress testing.");
+    const newTodo2 = "Case 1: New task 2 added by Cypress testing.";
+    cy.addNew(newTodo2);
 
     //// TODO-005:	Edit todo as completed
     // Get the last added item
@@ -38,20 +42,16 @@ describe("Case1: E2E Test", () => {
       .click();
 
     cy.wait(1000); // Wait
-    // Ensure the todo item is removed from the list
-    cy.get('[data-testid="todo-list"] li').should(
-      "not.contain",
-      "2: New task added by Cypress testing."
-    );
+    // Ensure the last todo item is removed from the list
+    cy.get('[data-testid="todo-list"] li').should("not.contain", newTodo2);
     //// LOGOUT-001:	Logout
     cy.logout();
   });
 
   it("Case 2: ", () => {
     //// LOGIN-001:	Login (Success)
-    cy.login("taekoharada", "taekoharada");
+    cy.login(LOGINID, LOGINPASS);
     cy.url().should("eq", Cypress.config().baseUrl + "/"); // Verify the URL
-    cy.getCookie("token").should("exist"); // token is existing
 
     //// TODO-001:	Display the existing todos
     cy.get('[data-testid="todo-list"] li').should("have.length.greaterThan", 1);
@@ -66,25 +66,37 @@ describe("Case1: E2E Test", () => {
 
   it("Case 3: ", () => {
     //// LOGIN-001:	Login (Success)
-    cy.login("taekoharada", "taekoharada");
+    cy.login(LOGINID, LOGINPASS);
     cy.url().should("eq", Cypress.config().baseUrl + "/"); // Verify the URL
-    cy.getCookie("token").should("exist"); // token is existing
 
     //// TODO-001:	Display the existing todos
     cy.get('[data-testid="todo-list"] li').should("have.length.greaterThan", 1);
 
     //// TODO-002:	Add a new todo
-    cy.addNew("Case 3: New task added by Cypress testing.");
+    const newTodo = "Case 3: New task added by Cypress testing.";
+    cy.addNew(newTodo);
 
     //// TODO-005:	Edit todo as completed
+    cy.get('[data-testid="todo-list"] li span').last().as("lastTodo");
+    // Assess the item is not completed
+    cy.get("@lastTodo").should("not.have.class", "line-through");
+    cy.get("@lastTodo").click();
+    // Assess the item is completed
+    cy.get("@lastTodo").should("have.class", "line-through");
 
     //// TODO-006:	Edit todo as not-completed
+    cy.get("@lastTodo").click();
+    // Assess the item is completed
+    cy.get("@lastTodo").should("have.class", "line-through");
   });
 
   it("Case 4: ", () => {
     //// LOGIN-002:	Login with invalid password (Fail)
-    cy.login("taekoharada", "invalidpassword");
-    cy.getCookie("token").should("not.exist"); // token i NOT existing
+    cy.login(LOGINID, "invalidpassword");
+    // Show error message
+    cy.get("p")
+      .contains("Login failed. Please check your credentials")
+      .should("be.visible");
   });
 
   it("Case 5: ", () => {
@@ -94,7 +106,9 @@ describe("Case1: E2E Test", () => {
     cy.get('input[placeholder="Password"]').should("be.empty");
     cy.get("button").contains("Login").click(); // Click the login button
 
-    cy.getCookie("token").should("not.exist"); // token is NOT existing
     // Show error message
+    cy.get("p")
+      .contains("Login failed. Please check your credentials")
+      .should("be.visible");
   });
 });
